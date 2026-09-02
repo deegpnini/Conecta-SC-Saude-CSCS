@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fila de Regulação - CSCS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f4f8; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); padding: 24px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e8edf3; padding-bottom: 16px; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+        .header h1 { font-size: 24px; color: #1a2a3a; }
+        .header .logo { color: #2c7be5; font-weight: 700; }
+        .nav-menu { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; border-bottom: 2px solid #e8edf3; padding-bottom: 12px; }
+        .nav-menu a { padding: 8px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+        .nav-menu a.active { background: #2c7be5; color: #fff; }
+        .nav-menu a.inactive { background: #e8edf3; color: #2c3e50; }
+        .nav-menu a.inactive:hover { background: #d0d8e0; }
+        .search-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .search-container input { flex: 1; min-width: 200px; padding: 10px 14px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 14px; background: #fafcfd; }
+        .search-container input:focus { outline: none; border-color: #2c7be5; box-shadow: 0 0 0 3px rgba(44,123,229,0.1); }
+        .search-container button { padding: 10px 20px; border-radius: 8px; border: none; background: #2c7be5; color: #fff; cursor: pointer; font-weight: 600; }
+        .search-container button:hover { background: #1a5fc7; }
+        .search-container .clear-btn { background: #e8edf3; color: #2c3e50; }
+        .search-container .clear-btn:hover { background: #d0d8e0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+        th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #e8edf3; }
+        th { background: #f8fafc; color: #1a2a3a; font-weight: 600; position: sticky; top: 0; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-aguardando { background: #fff3cd; color: #856404; }
+        .badge-analise { background: #cce5ff; color: #004085; }
+        .badge-encaminhado { background: #d4edda; color: #155724; }
+        .badge-internado { background: #f8d7da; color: #721c24; }
+        .badge-baixa { background: #d4edda; color: #155724; }
+        .badge-media { background: #fff3cd; color: #856404; }
+        .badge-alta { background: #f8d7da; color: #721c24; }
+        .badge-emergencia { background: #f8d7da; color: #721c24; }
+        .btn { background: #2c7be5; color: #fff; border: none; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .btn:hover { background: #1a5fc7; }
+        .loading { text-align: center; padding: 40px; color: #7a8a9e; }
+        .error { background: #fee; color: #c0392b; padding: 15px; border-radius: 8px; border: 1px solid #f5c6cb; }
+        .footer { text-align: center; margin-top: 30px; color: #7a8a9e; font-size: 12px; border-top: 1px solid #e8edf3; padding-top: 16px; }
+        .total { margin-top: 15px; font-weight: 600; color: #1a2a3a; }
+        .no-results { text-align: center; padding: 30px; color: #7a8a9e; }
+        .highlight { background: #fff3cd; padding: 0 2px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+<h1><span class="logo">🏥 CONECTA SC SAÚDE - CSCS</span></h1>
+        </div>
+
+        <div class="nav-menu">
+            <a href="operacional.html" class="active">📋 Fila de Regulação</a>
+            <a href="vagas.html" class="inactive">🏨 Vagas Disponíveis</a>
+            <a href="novo-encaminhamento.html" class="inactive">➕ Novo Encaminhamento</a>
+        </div>
+
+        <h2>📋 Solicitações integradas da UBS → CAPS / Rede Regional</h2>
+
+        <!-- 🔍 LUPINHA DE BUSCA -->
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar por nome, CPF, CID ou clínica..." onkeyup="buscarPacientes()">
+            <button onclick="buscarPacientes()">🔍 Buscar</button>
+            <button class="clear-btn" onclick="limparBusca()">✕ Limpar</button>
+        </div>
+
+        <div id="content">
+            <div class="loading">⏳ Carregando fila...</div>
+        </div>
+
+        <div class="footer">
+            CSCS v2.1 • Dados SIH/SUS • Santa Catarina • 2024-2026
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:9090';
+        let todosDados = [];
+
+        async function carregarFila() {
+            const content = document.getElementById('content');
+            
+            try {
+                const response = await fetch(`${API_URL}/api/requests`);
+                
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.erro) {
+                    content.innerHTML = `<div class="error">❌ Erro: ${data.erro}</div>`;
+                    return;
+                }
+                
+                if (!data || data.length === 0) {
+                    content.innerHTML = '<div class="error">⚠️ Nenhuma solicitação na fila</div>';
+                    return;
+                }
+                
+                todosDados = data;
+                renderTabela(data);
+                
+            } catch (error) {
+                content.innerHTML = `<div class="error">❌ Erro ao carregar dados: ${error.message}</div>`;
+                console.error('Erro:', error);
+            }
+        }
+
+        function renderTabela(dados) {
+            const content = document.getElementById('content');
+            
+            if (!dados || dados.length === 0) {
+                content.innerHTML = '<div class="no-results">🔍 Nenhum resultado encontrado para esta busca.</div>';
+                return;
+            }
+            
+            // Ordenar por nome (ordem alfabética)
+            const dadosOrdenados = [...dados].sort((a, b) => {
+                const nomeA = a.patient_name || '';
+                const nomeB = b.patient_name || '';
+                return nomeA.localeCompare(nomeB);
+            });
+            
+            const statusMap = {
+                'Aguardando': 'badge-aguardando',
+                'Em análise': 'badge-analise',
+                'Encaminhado': 'badge-encaminhado',
+                'Internado': 'badge-internado'
+            };
+            
+            const urgenciaMap = {
+                'Baixa': 'badge-baixa',
+                'Média': 'badge-media',
+                'Alta': 'badge-alta',
+                'Emergência': 'badge-emergencia'
+            };
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>PACIENTE</th>
+                            <th>CPF</th>
+                            <th>ESPECIALIDADE</th>
+                            <th>URGÊNCIA</th>
+                            <th>STATUS</th>
+                            <th>CID</th>
+                            <th>AÇÃO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            dadosOrdenados.forEach(item => {
+                const statusClass = statusMap[item.status] || 'badge-aguardando';
+                const urgenciaClass = urgenciaMap[item.urgency] || 'badge-media';
+                const cid = item.cid_principal || 'N/A';
+                
+                html += `
+                    <tr>
+                        <td>#${item.id}</td>
+                        <td><strong>${item.patient_name || 'N/A'}</strong></td>
+                        <td>${item.patient_cpf || 'N/A'}</td>
+                        <td>${item.specialty || 'N/A'}</td>
+                        <td><span class="badge ${urgenciaClass}">${item.urgency || 'Normal'}</span></td>
+                        <td><span class="badge ${statusClass}">${item.status || 'Aguardando'}</span></td>
+                        <td><code>${cid}</code></td>
+                        <td>
+                            <button class="btn" onclick="verDetalhes(${item.id})">📄 Ver</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `</tbody></table>
+                <div class="total">
+                    📊 Total: ${dadosOrdenados.length} casos ${dadosOrdenados.length < todosDados.length ? `(filtrado de ${todosDados.length})` : ''}
+                </div>
+            `;
+            
+            content.innerHTML = html;
+        }
+
+        function buscarPacientes() {
+            const termo = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (!termo) {
+                renderTabela(todosDados);
+                return;
+            }
+            
+            const resultados = todosDados.filter(item => {
+                return (
+                    (item.patient_name && item.patient_name.toLowerCase().includes(termo)) ||
+                    (item.patient_cpf && item.patient_cpf.includes(termo)) ||
+                    (item.cid_principal && item.cid_principal.toLowerCase().includes(termo)) ||
+                    (item.specialty && item.specialty.toLowerCase().includes(termo)) ||
+                    (item.vinculo_caps && item.vinculo_caps.toLowerCase().includes(termo)) ||
+                    (item.region && item.region.toLowerCase().includes(termo))
+                );
+            });
+            
+            renderTabela(resultados);
+        }
+
+        function limparBusca() {
+            document.getElementById('searchInput').value = '';
+            renderTabela(todosDados);
+        }
+
+        function verDetalhes(id) {
+            window.location.href = `caso.html?id=${id}`;
+        }
+        
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                buscarPacientes();
+            }
+        });
+        
+        carregarFila();
+    </script>
+</body>
+</html>

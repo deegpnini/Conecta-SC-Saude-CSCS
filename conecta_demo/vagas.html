@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vagas - CONECTA SC SAÚDE - CSCS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f4f8; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); padding: 24px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e8edf3; padding-bottom: 16px; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+        .header h1 { font-size: 24px; color: #1a2a3a; }
+        .header .logo { color: #2c7be5; font-weight: 700; }
+        .nav-menu { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; border-bottom: 2px solid #e8edf3; padding-bottom: 12px; }
+        .nav-menu a { padding: 8px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+        .nav-menu a.active { background: #2c7be5; color: #fff; }
+        .nav-menu a.inactive { background: #e8edf3; color: #2c3e50; }
+        .nav-menu a.inactive:hover { background: #d0d8e0; }
+        .search-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+        .search-container input { flex: 1; min-width: 200px; padding: 10px 14px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 14px; background: #fafcfd; }
+        .search-container input:focus { outline: none; border-color: #2c7be5; box-shadow: 0 0 0 3px rgba(44,123,229,0.1); }
+        .search-container button { padding: 10px 20px; border-radius: 8px; border: none; background: #2c7be5; color: #fff; cursor: pointer; font-weight: 600; }
+        .search-container button:hover { background: #1a5fc7; }
+        .search-container .clear-btn { background: #e8edf3; color: #2c3e50; }
+        .search-container .clear-btn:hover { background: #d0d8e0; }
+        .sort-options { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .sort-options label { font-size: 13px; color: #7a8a9e; }
+        .sort-options select { padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 13px; background: #fafcfd; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: #f8fafc; border-radius: 12px; padding: 16px 20px; border-left: 4px solid #2c7be5; }
+        .stat-card .label { font-size: 12px; color: #7a8a9e; text-transform: uppercase; font-weight: 600; }
+        .stat-card .value { font-size: 28px; font-weight: 700; color: #1a2a3a; }
+        .vagas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+        .vaga-card { background: #f8fafc; border-radius: 12px; padding: 16px 20px; border-left: 4px solid #2c7be5; transition: all 0.2s; }
+        .vaga-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        .vaga-card .nome { font-weight: 600; color: #1a2a3a; font-size: 16px; }
+        .vaga-card .cidade { font-size: 13px; color: #7a8a9e; margin: 4px 0; }
+        .vaga-card .info { display: flex; gap: 16px; margin-top: 8px; font-size: 13px; flex-wrap: wrap; }
+        .vaga-card .info span { background: #e8edf3; padding: 2px 12px; border-radius: 12px; }
+        .vaga-card .vagas { color: #00b894; font-weight: 600; }
+        .vaga-card .ocupacao { color: #e17055; }
+        .vaga-card .disponivel { color: #00b894; font-weight: 600; }
+        .vaga-card .sem-vagas { color: #e17055; font-weight: 600; }
+        .vaga-card .tipo-leito { font-size: 11px; color: #6c63ff; background: #6c63ff22; padding: 2px 10px; border-radius: 12px; display: inline-block; margin-top: 4px; }
+        .btn-reservar { background: #2c7be5; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; margin-top: 8px; transition: background 0.2s; }
+        .btn-reservar:hover { background: #1a5fc7; }
+        .btn-reservar:disabled { background: #aac4e0; cursor: not-allowed; }
+        .loading { text-align: center; padding: 40px; color: #7a8a9e; }
+        .error { background: #fee; color: #c0392b; padding: 20px; border-radius: 8px; border: 1px solid #f5c6cb; }
+        .footer { text-align: center; margin-top: 30px; color: #7a8a9e; font-size: 12px; border-top: 1px solid #e8edf3; padding-top: 16px; }
+        .no-results { text-align: center; padding: 40px; color: #7a8a9e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span class="logo">🏥 CONECTA SC SAÚDE - CSCS</span></h1>
+        </div>
+
+        <div class="nav-menu">
+            <a href="operacional.html" class="inactive">📋 Fila de Regulação</a>
+            <a href="vagas.html" class="active">🏨 Vagas Disponíveis</a>
+            <a href="novo-encaminhamento.html" class="inactive">➕ Novo Encaminhamento</a>
+        </div>
+
+        <h2>📋 Leitos e Vagas Disponíveis</h2>
+        <p style="color: #7a8a9e; margin-bottom: 16px;">Rede de saúde da AMUREL – atualizado em tempo real</p>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar clínica por nome ou cidade..." onkeyup="filtrarEVagas()">
+            <button onclick="filtrarEVagas()">🔍 Buscar</button>
+            <button class="clear-btn" onclick="limparBusca()">✕ Limpar</button>
+            <div class="sort-options">
+                <label>Ordenar por:</label>
+                <select id="sortSelect" onchange="filtrarEVagas()">
+                    <option value="nome">Nome (A-Z)</option>
+                    <option value="vagas">Mais Vagas</option>
+                    <option value="cidade">Cidade</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="content">
+            <div class="loading">⏳ Carregando vagas...</div>
+        </div>
+
+        <div class="footer">
+            CSCS v2.1 • Dados SIH/SUS • Santa Catarina • 2024-2026
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:9090';
+        let todasClinicas = [];
+
+        async function carregarVagas() {
+            const content = document.getElementById('content');
+            
+            try {
+                const response = await fetch(`${API_URL}/api/clinicas`);
+                
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.erro) {
+                    content.innerHTML = `<div class="error">❌ Erro: ${data.erro}</div>`;
+                    return;
+                }
+                
+                if (!data || data.length === 0) {
+                    content.innerHTML = '<div class="error">⚠️ Nenhuma clínica encontrada</div>';
+                    return;
+                }
+                
+                todasClinicas = data;
+                filtrarEVagas();
+                
+            } catch (error) {
+                content.innerHTML = `<div class="error">❌ Erro ao carregar vagas: ${error.message}</div>`;
+                console.error('Erro:', error);
+            }
+        }
+
+        function filtrarEVagas() {
+            const termo = document.getElementById('searchInput').value.toLowerCase().trim();
+            const sortBy = document.getElementById('sortSelect').value;
+            
+            let dados = todasClinicas;
+            
+            if (termo) {
+                dados = dados.filter(c => 
+                    c.nome.toLowerCase().includes(termo) ||
+                    (c.cidade && c.cidade.toLowerCase().includes(termo))
+                );
+            }
+            
+            if (sortBy === 'nome') {
+                dados.sort((a, b) => a.nome.localeCompare(b.nome));
+            } else if (sortBy === 'vagas') {
+                dados.sort((a, b) => (b.vagas || 0) - (a.vagas || 0));
+            } else if (sortBy === 'cidade') {
+                dados.sort((a, b) => (a.cidade || '').localeCompare(b.cidade || ''));
+            }
+            
+            renderizarVagas(dados);
+        }
+
+        function renderizarVagas(dados) {
+            const content = document.getElementById('content');
+            
+            if (!dados || dados.length === 0) {
+                content.innerHTML = '<div class="no-results">🔍 Nenhuma clínica encontrada para esta busca.</div>';
+                return;
+            }
+            
+            let totalLeitos = 0;
+            let totalVagas = 0;
+            let comVagas = 0;
+            
+            dados.forEach(c => {
+                totalLeitos += c.leitos || 0;
+                totalVagas += c.vagas || 0;
+                if (c.vagas > 0) comVagas++;
+            });
+            
+            let html = `
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="label">ESTABELECIMENTOS</div>
+                        <div class="value">${dados.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">LEITOS TOTAIS</div>
+                        <div class="value">${totalLeitos}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">VAGAS DISPONÍVEIS</div>
+                        <div class="value">${totalVagas}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">COM VAGAS</div>
+                        <div class="value">${comVagas}</div>
+                    </div>
+                </div>
+                <div class="vagas-grid">
+            `;
+            
+            dados.forEach(clinica => {
+                const temVaga = clinica.vagas > 0;
+                const statusVaga = temVaga ? '<span class="disponivel">✅ Disponíveis</span>' : '<span class="sem-vagas">❌ Sem vagas</span>';
+                const tipo = clinica.tipo_unidade || clinica.tipo_leito || 'Geral';
+                
+                html += `
+                    <div class="vaga-card">
+                        <div class="nome">${clinica.nome}</div>
+                        <div class="cidade">📍 ${clinica.cidade || 'N/A'}</div>
+                        <div class="tipo-leito">${tipo}</div>
+                        <div class="info">
+                            <span>🛏️ ${clinica.leitos || 0} leitos</span>
+                            <span class="vagas">🟢 ${clinica.vagas || 0} vagas</span>
+                            <span class="ocupacao">📊 ${clinica.ocupacao || 0}% ocupação</span>
+                        </div>
+                        <div>${statusVaga}</div>
+                        <button class="btn-reservar" onclick="reservarVaga(${clinica.id}, '${clinica.nome}')" ${!temVaga ? 'disabled' : ''}>
+                            ${temVaga ? '📝 Reservar Vaga' : '🚫 Indisponível'}
+                        </button>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+            content.innerHTML = html;
+        }
+
+        function reservarVaga(id, nome) {
+            // Redirecionar para o formulário de encaminhamento com a clínica selecionada
+            window.location.href = `novo-encaminhamento.html?clinica_id=${id}&clinica_nome=${encodeURIComponent(nome)}`;
+        }
+
+        function limparBusca() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sortSelect').value = 'nome';
+            filtrarEVagas();
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                filtrarEVagas();
+            }
+        });
+        
+        carregarVagas();
+    </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CONECTA SC SAÚDE - CSCS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0d1b2a, #1b3a5c); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-box { background: #fff; border-radius: 16px; padding: 40px; width: 400px; max-width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        .login-box h1 { font-size: 28px; color: #1a2a3a; margin-bottom: 4px; }
+        .login-box h1 span { color: #2c7be5; }
+        .login-box .sub { color: #7a8a9e; font-size: 14px; margin-bottom: 24px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #2c3e50; margin-bottom: 4px; }
+        .form-group input { width: 100%; padding: 10px 14px; border: 1px solid #d0d8e0; border-radius: 8px; font-size: 14px; background: #fafcfd; }
+        .form-group input:focus { outline: none; border-color: #2c7be5; box-shadow: 0 0 0 3px rgba(44,123,229,0.1); }
+        .btn-login { width: 100%; padding: 12px; background: #2c7be5; color: #fff; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-login:hover { background: #1a5fc7; }
+        .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+        .error { color: #c62828; background: #fce4ec; padding: 10px; border-radius: 8px; margin-top: 12px; display: none; }
+        .cred { margin-top: 16px; font-size: 12px; color: #7a8a9e; text-align: center; }
+        .cred strong { color: #1a2a3a; }
+    </style>
+</head>
+<body>
+<div class="login-box">
+    <h1>🏥 <span>CONECTA SC SAÚDE - CSCS</span></h1>
+    <div class="sub">Sistema de Regulação e Transparência</div>
+
+    <div class="form-group">
+        <label>Usuário</label>
+        <input type="text" id="username" value="admin" placeholder="admin">
+    </div>
+    <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="password" value="admin123" placeholder="admin123">
+    </div>
+
+    <button class="btn-login" id="btnLogin">Entrar</button>
+
+    <div class="error" id="errorMsg">❌ Usuário ou senha inválidos.</div>
+
+    <div class="cred">📧 <strong>admin</strong> / <strong>admin123</strong></div>
+</div>
+
+<script>
+document.getElementById('btnLogin').addEventListener('click', function() {
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+    const error = document.getElementById('errorMsg');
+    const btn = this;
+
+    if (user === 'admin' && pass === 'admin123') {
+        error.style.display = 'none';
+        btn.textContent = '⏳ Entrando...';
+        btn.disabled = true;
+        setTimeout(() => {
+            window.location.href = 'operacional.html';
+        }, 500);
+    } else {
+        error.style.display = 'block';
+        setTimeout(() => { error.style.display = 'none'; }, 3000);
+    }
+});
+
+// Enter key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('btnLogin').click();
+});
+</script>
+</body>
+</html>

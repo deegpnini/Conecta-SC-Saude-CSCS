@@ -1,0 +1,7 @@
+#!/data/data/com.termux/files/usr/bin/bash
+echo "🛑 Parando CONECTA SAÚDE SC..."
+pkill -9 -f "uvicorn" 2>/dev/null
+pkill -9 -f "http.server" 2>/dev/null
+pkill -9 -f "app_dashboard" 2>/dev/null
+pkill -9 python3 2>/dev/null
+echo "✅ Todos os processos parados"

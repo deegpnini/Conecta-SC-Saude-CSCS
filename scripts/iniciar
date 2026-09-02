@@ -1,0 +1,45 @@
+#!/data/data/com.termux/files/usr/bin/bash
+echo "============================================================"
+echo "🚀 CONECTA SAÚDE SC - INICIAR SISTEMA"
+echo "============================================================"
+echo ""
+
+# Matar processos antigos
+echo "🛑 Parando processos antigos..."
+pkill -9 -f "uvicorn" 2>/dev/null
+pkill -9 -f "http.server" 2>/dev/null
+pkill -9 -f "app_dashboard" 2>/dev/null
+sleep 2
+
+# Iniciar API
+echo "🚀 [1/3] Iniciando API (porta 9090)..."
+cd ~/conecta-saude-sc
+uvicorn api.main:app --host 0.0.0.0 --port 9090 --reload > logs_api.log 2>&1 &
+sleep 5
+
+# Iniciar Frontend
+echo "🌐 [2/3] Iniciando Frontend (porta 8080)..."
+cd ~/conecta-saude-sc/conecta_demo
+python3 -m http.server 8080 > ../logs_frontend.log 2>&1 &
+cd ~/conecta-saude-sc
+sleep 3
+
+# Iniciar Dashboard
+echo "📊 [3/3] Iniciando Dashboard (porta 5000)..."
+python3 app_dashboard.py > logs_dashboard.log 2>&1 &
+sleep 3
+
+echo ""
+echo "============================================================"
+echo "✅ SISTEMA COMPLETO"
+echo "============================================================"
+echo ""
+echo "📱 ACESSOS:"
+echo "   🔗 Frontend: http://localhost:8080/login.html"
+echo "   🔗 API: http://localhost:9090/docs"
+echo "   🔗 Dashboard: http://localhost:5000"
+echo ""
+echo "📌 Credenciais: admin / admin123"
+echo ""
+echo "🛑 Para parar: ./parar"
+echo "============================================================"

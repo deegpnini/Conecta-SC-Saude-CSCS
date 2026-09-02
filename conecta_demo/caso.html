@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Caso - CONECTA SC SAÚDE - CSCS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f4f8; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); padding: 24px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e8edf3; padding-bottom: 16px; margin-bottom: 24px; }
+        .header h1 { font-size: 24px; color: #1a2a3a; }
+        .header .logo { color: #2c7be5; font-weight: 700; }
+        .back { color: #2c7be5; text-decoration: none; }
+        .field { display: flex; padding: 10px 0; border-bottom: 1px solid #e8edf3; }
+        .field-label { width: 150px; font-weight: 600; color: #1a2a3a; }
+        .field-value { flex: 1; color: #2c3e50; }
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
+        .badge-aguardando { background: #fff3cd; color: #856404; }
+        .badge-analise { background: #cce5ff; color: #004085; }
+        .badge-encaminhado { background: #d4edda; color: #155724; }
+        .badge-internado { background: #f8d7da; color: #721c24; }
+        .badge-baixa { background: #d4edda; color: #155724; }
+        .badge-media { background: #fff3cd; color: #856404; }
+        .badge-alta { background: #f8d7da; color: #721c24; }
+        .badge-emergencia { background: #f8d7da; color: #721c24; }
+        .loading { text-align: center; padding: 40px; color: #7a8a9e; }
+        .error { background: #fee; color: #c0392b; padding: 20px; border-radius: 8px; border: 1px solid #f5c6cb; }
+        .footer { text-align: center; margin-top: 30px; color: #7a8a9e; font-size: 12px; border-top: 1px solid #e8edf3; padding-top: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span class="logo">🏥 CONECTA</span> SAÚDE SC</h1>
+            <a href="operacional.html" class="back">← Voltar</a>
+        </div>
+
+        <h2>📋 Detalhes do Caso</h2>
+
+        <div id="content">
+            <div class="loading">⏳ Carregando detalhes...</div>
+        </div>
+
+        <div class="footer">
+            CSCS v2.1 • Dados SIH/SUS • Santa Catarina • 2024-2026
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:9090';
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+
+        async function carregarDetalhes() {
+            const content = document.getElementById('content');
+            
+            if (!id) {
+                content.innerHTML = '<div class="error">❌ ID do paciente não informado</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/api/requests/${id}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.erro) {
+                    content.innerHTML = `<div class="error">❌ Erro: ${data.erro}</div>`;
+                    return;
+                }
+                
+                const statusMap = {
+                    'Aguardando': 'badge-aguardando',
+                    'Em análise': 'badge-analise',
+                    'Encaminhado': 'badge-encaminhado',
+                    'Internado': 'badge-internado'
+                };
+                
+                const urgenciaMap = {
+                    'Baixa': 'badge-baixa',
+                    'Média': 'badge-media',
+                    'Alta': 'badge-alta',
+                    'Emergência': 'badge-emergencia'
+                };
+                
+                const statusClass = statusMap[data.status] || 'badge-aguardando';
+                const urgenciaClass = urgenciaMap[data.urgency] || 'badge-media';
+                
+                const fields = [
+                    { label: 'ID', value: `#${data.id}` },
+                    { label: 'Paciente', value: data.patient_name || 'N/A' },
+                    { label: 'CPF', value: data.patient_cpf || 'N/A' },
+                    { label: 'Telefone', value: data.patient_phone || 'N/A' },
+                    { label: 'Idade', value: data.age || 'N/A' },
+                    { label: 'Sexo', value: data.gender || 'N/A' },
+                    { label: 'Especialidade', value: data.specialty || 'N/A' },
+                    { label: 'Urgência', value: `<span class="badge ${urgenciaClass}">${data.urgency || 'Normal'}</span>` },
+                    { label: 'Status', value: `<span class="badge ${statusClass}">${data.status || 'Aguardando'}</span>` },
+                    { label: 'Região', value: data.region || 'N/A' },
+                    { label: 'CID Principal', value: data.cid_principal || 'N/A' },
+                    { label: 'Vínculo CAPS', value: data.vinculo_caps || 'N/A' },
+                    { label: 'Observações', value: data.observations || 'N/A' },
+                ];
+                
+                let html = '';
+                fields.forEach(field => {
+                    html += `
+                        <div class="field">
+                            <div class="field-label">${field.label}</div>
+                            <div class="field-value">${field.value}</div>
+                        </div>
+                    `;
+                });
+                
+                content.innerHTML = html;
+                
+            } catch (error) {
+                content.innerHTML = `<div class="error">❌ Erro ao carregar detalhes: ${error.message}</div>`;
+                console.error('Erro:', error);
+            }
+        }
+        
+        carregarDetalhes();
+    </script>
+</body>
+</html>

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Encaminhamento - CONECTA SC SAÚDE - CSCS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f4f8; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); padding: 32px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e8edf3; padding-bottom: 16px; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+        .header h1 { font-size: 24px; color: #1a2a3a; }
+        .header .logo { color: #2c7be5; font-weight: 700; }
+        .header .user { font-size: 14px; color: #7a8a9e; display: flex; align-items: center; gap: 12px; }
+        .header .user .logout { color: #ff6b6b; cursor: pointer; text-decoration: none; padding: 4px 12px; border-radius: 4px; border: 1px solid #ff6b6b; font-size: 12px; }
+        .header .user .logout:hover { background: #ff6b6b33; }
+
+        .nav-menu { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; border-bottom: 2px solid #e8edf3; padding-bottom: 12px; }
+        .nav-menu a { padding: 8px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+        .nav-menu a.active { background: #2c7be5; color: #fff; }
+        .nav-menu a.inactive { background: #e8edf3; color: #2c3e50; }
+        .nav-menu a.inactive:hover { background: #d0d8e0; }
+
+        /* Banner da clínica reservada */
+        .banner-reserva { background: #e3f2fd; color: #0d47a1; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; border-left: 4px solid #1976d2; display: none; }
+        .banner-reserva .clinica-nome { color: #0d47a1; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #2c3e50; margin-bottom: 4px; }
+        .form-group label .obrigatorio { color: #e74c3c; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid #d0d8e0; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; background: #fafcfd; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #2c7be5; box-shadow: 0 0 0 3px rgba(44,123,229,0.1); }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+        /* Sugestões de pacientes */
+        .sugestoes-pacientes { position: absolute; background: #fff; border: 1px solid #d1d5db; border-radius: 8px; max-height: 200px; overflow-y: auto; z-index: 1000; width: 100%; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .sugestoes-pacientes div { padding: 8px 14px; cursor: pointer; border-bottom: 1px solid #f0f4f8; }
+        .sugestoes-pacientes div:hover { background: #f0f4f8; }
+        .sugestoes-pacientes .info { font-size: 12px; color: #7a8a9e; }
+
+        .btn-submit { background: #2c7be5; color: #fff; border: none; padding: 12px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-submit:hover { background: #1a5fc7; }
+        .btn-voltar { background: #e8edf3; color: #2c3e50; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.2s; }
+        .btn-voltar:hover { background: #d0d8e0; }
+        .actions { display: flex; gap: 16px; margin-top: 24px; justify-content: flex-end; flex-wrap: wrap; }
+        .mensagem { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; display: none; }
+        .mensagem.sucesso { display: block; background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .mensagem.erro { display: block; background: #fce4ec; color: #c62828; border: 1px solid #ef9a9a; }
+
+        /* Busca de paciente */
+        .paciente-busca { position: relative; }
+
+        @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } .container { padding: 20px; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📋 <span class="logo">CONECTA SC SAÚDE - CSCS</span></h1>
+        <div class="user">
+            <span>👤 Admin</span>
+            <a href="login.html" class="logout">Sair</a>
+        </div>
+    </div>
+
+    <div class="nav-menu">
+        <a href="operacional.html" class="inactive">📋 Fila de Regulação</a>
+        <a href="vagas.html" class="inactive">🏥 Vagas Disponíveis</a>
+        <a href="novo-encaminhamento.html" class="active">✏️ Novo Encaminhamento</a>
+    </div>
+
+    <!-- Banner da clínica reservada -->
+    <div id="bannerReserva" class="banner-reserva">
+        🏥 Encaminhamento direcionado para: <strong id="clinicaDestinoNome" class="clinica-nome"></strong> (CNES: <span id="clinicaDestinoCNES"></span>)
+    </div>
+
+    <div id="mensagem" class="mensagem"></div>
+
+    <form id="formEncaminhamento">
+        <!-- Busca de paciente (triagem prévia) -->
+        <div class="form-group paciente-busca">
+            <label>🔍 Buscar Paciente (digite o nome)</label>
+            <input type="text" id="buscaPaciente" placeholder="Digite o nome do paciente..." autocomplete="off">
+            <div id="sugestoesPacientes" class="sugestoes-pacientes"></div>
+        </div>
+
+        <div style="border-top: 2px dashed #e8edf3; margin: 16px 0; padding-top: 16px;">
+            <p style="font-size: 13px; color: #7a8a9e; text-align: center;">📌 Ou preencha manualmente os dados abaixo</p>
+        </div>
+
+        <!-- Dados Pessoais -->
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Nome do Paciente <span class="obrigatorio">*</span></label>
+                <input type="text" id="patientName" placeholder="Nome completo" required>
+            </div>
+            <div class="form-group">
+                <label>CPF</label>
+                <input type="text" id="patientCpf" placeholder="000.000.000-00" maxlength="14">
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Telefone</label>
+                <input type="text" id="patientPhone" placeholder="(48) 99999-9999">
+            </div>
+            <div class="form-group">
+                <label>Contato de Emergência</label>
+                <input type="text" id="emergencyContact" placeholder="(48) 99999-9999 - Nome">
+            </div>
+        </div>
+
+        <div class="grid-3">
+            <div class="form-group">
+                <label>Idade</label>
+                <input type="number" id="age" placeholder="25">
+            </div>
+            <div class="form-group">
+                <label>Sexo</label>
+                <select id="gender">
+                    <option value="">Selecione</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Bairro</label>
+                <input type="text" id="neighborhood" placeholder="Bairro">
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Altura (m)</label>
+                <input type="number" id="height" step="0.01" placeholder="1.75">
+            </div>
+            <div class="form-group">
+                <label>Peso (kg)</label>
+                <input type="number" id="weight" step="0.1" placeholder="70.0">
+            </div>
+        </div>
+
+        <!-- Dados Clínicos -->
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Especialidade <span class="obrigatorio">*</span></label>
+                <select id="specialty" required>
+                    <option value="">Selecione</option>
+                    <option value="Psiquiatria">Psiquiatria</option>
+                    <option value="Dependência Química">Dependência Química</option>
+                    <option value="Psicologia">Psicologia</option>
+                    <option value="Neurologia">Neurologia</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Urgência <span class="obrigatorio">*</span></label>
+                <select id="urgency" required>
+                    <option value="">Selecione</option>
+                    <option value="baixa">Baixa</option>
+                    <option value="media">Média</option>
+                    <option value="alta">Alta</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Região <span class="obrigatorio">*</span></label>
+                <select id="region" required>
+                    <option value="">Selecione</option>
+                    <option value="Criciúma">Criciúma</option>
+                    <option value="Tubarão">Tubarão</option>
+                    <option value="Içara">Içara</option>
+                    <option value="Braço do Norte">Braço do Norte</option>
+                    <option value="Balneário Rincão">Balneário Rincão</option>
+                    <option value="São Ludgero">São Ludgero</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Médico Responsável</label>
+                <input type="text" id="doctorName" placeholder="Dr(a). Nome">
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group" style="position:relative;">
+                <label>CID Principal</label>
+                <input type="text" id="cidPrincipal" placeholder="F200 - Esquizofrenia">
+                <div id="cidSuggestions" style="position:absolute;background:#fff;border:1px solid #d1d5db;border-radius:6px;max-height:150px;overflow-y:auto;z-index:1000;width:calc(100% - 4px);display:none;box-shadow:0 4px 12px rgba(0,0,0,0.15);"></div>
+            </div>
+            <div class="form-group">
+                <label>CID Secundário</label>
+                <input type="text" id="cidSecundario" placeholder="F102 - Dependência de álcool">
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Comorbidades</label>
+                <input type="text" id="comorbidities" placeholder="Hipertensão, Diabetes...">
+            </div>
+            <div class="form-group">
+                <label>Medicamentos Atuais</label>
+                <input type="text" id="medicamentos" placeholder="Risperidona 2mg, Clonazepam 0,5mg">
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Alergias</label>
+                <input type="text" id="alergias" placeholder="Penicilina, Sulfa...">
+            </div>
+            <div class="form-group">
+                <label>Vínculo CAPS</label>
+                <input type="text" id="vinculoCaps" placeholder="CAPS II Criciúma">
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Internações Anteriores</label>
+                <input type="number" id="previousInternacoes" value="0" min="0">
+            </div>
+            <div class="form-group">
+                <label>Data da Última Alta</label>
+                <input type="date" id="dataUltimaAlta">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Observações Clínicas</label>
+            <textarea id="observations" placeholder="Descreva o quadro clínico do paciente..."></textarea>
+        </div>
+
+        <!-- Clínica destino (oculto) -->
+        <input type="hidden" id="clinicaDestino" value="">
+
+        <div class="actions">
+            <a href="operacional.html" class="btn-voltar">← Voltar</a>
+            <button type="submit" class="btn-submit">✅ Encaminhar</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // ============================================================
+    // 1. CAPTURAR RESERVA DA CLÍNICA
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        const clinicaNome = sessionStorage.getItem('clinicaDestinoNome');
+        const clinicaCNES = sessionStorage.getItem('clinicaDestinoCNES');
+
+        if (clinicaNome && clinicaCNES) {
+            const banner = document.getElementById('bannerReserva');
+            banner.style.display = 'block';
+            document.getElementById('clinicaDestinoNome').textContent = clinicaNome;
+            document.getElementById('clinicaDestinoCNES').textContent = clinicaCNES;
+            document.getElementById('clinicaDestino').value = clinicaCNES;
+        }
+    });
+
+    // ============================================================
+    // 2. BUSCA DE PACIENTE (Triagem prévia)
+    // ============================================================
+    const buscaInput = document.getElementById('buscaPaciente');
+    const sugestoesDiv = document.getElementById('sugestoesPacientes');
+
+    // Lista de pacientes já cadastrados (simulada - virá do backend)
+    const pacientesCadastrados = [
+        { nome: 'Marcos Silva', cpf: '123.456.789-01', phone: '(48) 99999-0001', age: 34, gender: 'Masculino', neighborhood: 'Centro' },
+        { nome: 'Juliana Costa', cpf: '987.654.321-02', phone: '(48) 99999-0002', age: 42, gender: 'Feminino', neighborhood: 'Centro' },
+        { nome: 'Roberto Santos', cpf: '456.789.123-03', phone: '(48) 99999-0003', age: 28, gender: 'Masculino', neighborhood: 'Vila Belmiro' },
+        { nome: 'Aline Pereira', cpf: '789.123.456-04', phone: '(48) 99999-0004', age: 31, gender: 'Feminino', neighborhood: 'Progresso' },
+        { nome: 'Carlos Eduardo', cpf: '321.654.987-05', phone: '(48) 99999-0005', age: 22, gender: 'Masculino', neighborhood: 'Centro' },
+        { nome: 'Fernanda Lima', cpf: '147.258.369-06', phone: '(48) 99999-0006', age: 37, gender: 'Feminino', neighborhood: 'Balneário' },
+        { nome: 'Paulo Henrique', cpf: '258.369.147-07', phone: '(48) 99999-0007', age: 45, gender: 'Masculino', neighborhood: 'Próspera' },
+        { nome: 'Mariana Oliveira', cpf: '369.147.258-08', phone: '(48) 99999-0008', age: 39, gender: 'Feminino', neighborhood: 'Oficinas' },
+        { nome: 'Anderson Souza', cpf: '741.852.963-09', phone: '(48) 99999-0009', age: 29, gender: 'Masculino', neighborhood: 'Mina União' },
+        { nome: 'Cristiane Martins', cpf: '852.963.741-10', phone: '(48) 99999-0010', age: 55, gender: 'Feminino', neighborhood: 'Vila Nova' }
+    ];
+
+    buscaInput.addEventListener('input', function() {
+        const termo = this.value.toLowerCase().trim();
+        if (termo.length < 2) {
+            sugestoesDiv.style.display = 'none';
+            return;
+        }
+
+        const matches = pacientesCadastrados.filter(p => 
+            p.nome.toLowerCase().includes(termo)
+        );
+
+        if (matches.length === 0) {
+            sugestoesDiv.style.display = 'none';
+            return;
+        }
+
+        sugestoesDiv.innerHTML = matches.map(p => 
+            `<div onclick="preencherPaciente('${p.nome}', '${p.cpf}', '${p.phone}', ${p.age}, '${p.gender}', '${p.neighborhood}')">
+                <strong>${p.nome}</strong>
+                <div class="info">CPF: ${p.cpf} · ${p.age} anos · ${p.neighborhood}</div>
+            </div>`
+        ).join('');
+        sugestoesDiv.style.display = 'block';
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.paciente-busca')) {
+            sugestoesDiv.style.display = 'none';
+        }
+    });
+
+    function preencherPaciente(nome, cpf, phone, age, gender, neighborhood) {
+        document.getElementById('patientName').value = nome;
+        document.getElementById('patientCpf').value = cpf;
+        document.getElementById('patientPhone').value = phone;
+        document.getElementById('age').value = age;
+        document.getElementById('gender').value = gender;
+        document.getElementById('neighborhood').value = neighborhood;
+        document.getElementById('buscaPaciente').value = nome;
+        sugestoesDiv.style.display = 'none';
+        document.getElementById('buscaPaciente').style.borderColor = '#51cf66';
+    }
+
+    // ============================================================
+    // 3. MÁSCARA E VALIDAÇÃO DE CPF
+    // ============================================================
+    const inputCPF = document.getElementById('patientCpf');
+    if (inputCPF) {
+        inputCPF.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 11) value = value.slice(0, 11);
+            if (value.length > 3) value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            if (value.length > 6) value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            if (value.length > 9) value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            e.target.value = value;
+        });
+    }
+
+    function validarCPF(cpf) {
+        cpf = cpf.replace(/[^\d]+/g, '');
+        if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+        let soma = 0, resto;
+        for (let i = 1; i <= 9; i++) soma += parseInt(cpf.substring(i-1, i)) * (11 - i);
+        resto = (soma * 10) % 11;
+        if ((resto === 10) || (resto === 11)) resto = 0;
+        if (resto !== parseInt(cpf.substring(9, 10))) return false;
+        soma = 0;
+        for (let i = 1; i <= 10; i++) soma += parseInt(cpf.substring(i-1, i)) * (12 - i);
+        resto = (soma * 10) % 11;
+        if ((resto === 10) || (resto === 11)) resto = 0;
+        if (resto !== parseInt(cpf.substring(10, 11))) return false;
+        return true;
+    }
+
+    // ============================================================
+    // 4. AUTO-COMPLETAR CID
+    // ============================================================
+    const cids = {
+        'F200': 'Esquizofrenia paranoide',
+        'F201': 'Esquizofrenia hebefrênica',
+        'F202': 'Esquizofrenia catatônica',
+        'F203': 'Esquizofrenia indiferenciada',
+        'F204': 'Depressão pós-esquizofrênica',
+        'F205': 'Esquizofrenia residual',
+        'F206': 'Esquizofrenia simples',
+        'F207': 'Esquizofrenia cenestopática',
+        'F208': 'Outras esquizofrenias',
+        'F209': 'Esquizofrenia não especificada',
+        'F102': 'Dependência de álcool',
+        'F103': 'Síndrome de abstinência alcoólica',
+        'F104': 'Delirium tremens',
+        'F105': 'Psicose alcoólica',
+        'F112': 'Dependência de opioides',
+        'F122': 'Dependência de maconha',
+        'F132': 'Dependência de sedativos',
+        'F142': 'Dependência de cocaína',
+        'F152': 'Dependência de estimulantes',
+        'F162': 'Dependência de alucinógenos',
+        'F192': 'Dependência de múltiplas substâncias',
+        'F29': 'Psicose não especificada',
+        'F312': 'Transtorno bipolar - maníaco com psicose',
+        'F313': 'Transtorno bipolar - depressivo grave',
+        'F314': 'Transtorno bipolar - depressivo leve',
+        'F315': 'Transtorno bipolar - misto',
+        'F316': 'Transtorno bipolar - hipomaníaco',
+        'F322': 'Depressão grave sem psicose',
+        'F323': 'Depressão grave com psicose',
+        'F329': 'Depressão não especificada',
+        'F332': 'Depressão recorrente grave',
+        'F333': 'Depressão recorrente grave com psicose',
+        'F39': 'Transtorno de humor não especificado',
+        'F410': 'Transtorno de pânico',
+        'F419': 'Transtorno de ansiedade não especificado',
+        'F420': 'Transtorno obsessivo-compulsivo',
+        'F431': 'Transtorno de estresse pós-traumático'
+    };
+
+    const cidInput = document.getElementById('cidPrincipal');
+    const cidSuggestions = document.getElementById('cidSuggestions');
+
+    if (cidInput) {
+        cidInput.addEventListener('input', function() {
+            const value = this.value.toUpperCase();
+            if (value.length < 2) {
+                cidSuggestions.style.display = 'none';
+                return;
+            }
+            const matches = Object.entries(cids).filter(([code, name]) => 
+                code.includes(value) || name.toUpperCase().includes(value)
+            );
+            if (matches.length === 0) {
+                cidSuggestions.style.display = 'none';
+                return;
+            }
+            cidSuggestions.innerHTML = matches.map(([code, name]) => 
+                `<div style="padding:6px 12px;cursor:pointer;border-bottom:1px solid #f0f4f8;" onclick="document.getElementById('cidPrincipal').value='${code} - ${name}';document.getElementById('cidSuggestions').style.display='none';">${code} - ${name}</div>`
+            ).join('');
+            cidSuggestions.style.display = 'block';
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#cidPrincipal')) {
+                cidSuggestions.style.display = 'none';
+            }
+        });
+    }
+
+    // ============================================================
+    // 5. ENVIO DO FORMULÁRIO
+    // ============================================================
+    document.getElementById('formEncaminhamento').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const cpf = document.getElementById('patientCpf').value;
+        if (cpf && !validarCPF(cpf)) {
+            alert('❌ CPF inválido! Verifique o número digitado.');
+            return;
+        }
+
+        const btn = this.querySelector('.btn-submit');
+        btn.textContent = '⏳ Enviando...';
+        btn.disabled = true;
+
+        const data = {
+            patient_name: document.getElementById('patientName').value,
+            patient_cpf: document.getElementById('patientCpf').value,
+            patient_phone: document.getElementById('patientPhone').value,
+            age: parseInt(document.getElementById('age').value) || null,
+            gender: document.getElementById('gender').value,
+            neighborhood: document.getElementById('neighborhood').value,
+            height: parseFloat(document.getElementById('height').value) || null,
+            weight: parseFloat(document.getElementById('weight').value) || null,
+            specialty: document.getElementById('specialty').value,
+            urgency: document.getElementById('urgency').value,
+            region: document.getElementById('region').value,
+            doctor_name: document.getElementById('doctorName').value,
+            cid_principal: document.getElementById('cidPrincipal').value,
+            cid_secundario: document.getElementById('cidSecundario').value,
+            comorbidities: document.getElementById('comorbidities').value,
+            medicamentos_atuais: document.getElementById('medicamentos').value,
+            alergias: document.getElementById('alergias').value,
+            vinculo_caps: document.getElementById('vinculoCaps').value,
+            previous_internacoes: parseInt(document.getElementById('previousInternacoes').value) || 0,
+            data_ultima_alta: document.getElementById('dataUltimaAlta').value || null,
+            observations: document.getElementById('observations').value,
+            status: 'aguardando',
+            priority: document.getElementById('urgency').value,
+            clinic_destino: document.getElementById('clinicaDestino').value
+        };
+
+        const msg = document.getElementById('mensagem');
+
+        try {
+            const response = await fetch('http://localhost:9090/api/requests/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                msg.className = 'mensagem sucesso';
+                msg.textContent = '✅ Encaminhamento realizado com sucesso!';
+                this.reset();
+                document.getElementById('buscaPaciente').value = '';
+                document.getElementById('buscaPaciente').style.borderColor = '#d0d8e0';
+                
+                // Limpar reserva
+                sessionStorage.removeItem('clinicaDestinoCNES');
+                sessionStorage.removeItem('clinicaDestinoNome');
+                document.getElementById('bannerReserva').style.display = 'none';
+
+                setTimeout(() => {
+                    window.location.href = 'operacional.html';
+                }, 1500);
+            } else {
+                const err = await response.json();
+                msg.className = 'mensagem erro';
+                msg.textContent = '❌ Erro: ' + (err.detail || 'Tente novamente.');
+            }
+        } catch (error) {
+            msg.className = 'mensagem erro';
+            msg.textContent = '❌ Erro de conexão. Verifique se a API está rodando.';
+        }
+
+        btn.textContent = '✅ Encaminhar';
+        btn.disabled = false;
+    });
+</script>
+</body>
+</html>
