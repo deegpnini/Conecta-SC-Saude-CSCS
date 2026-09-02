@@ -1,3 +1,5 @@
+n> ⚠️ **STATUS: MVP/DEMO** - Este é um protótipo funcional para demonstração de conceito. Não é uma integração operacional com o SUS. Para uso em produção, são necessárias adaptações de segurança e governança.
+
 > ⚠️ **STATUS: MVP/DEMO** - Este é um protótipo funcional para demonstração. Não é uma integração operacional com o SUS. Para uso em produção, são necessárias adaptações de segurança e governança.
 
 # 🏥 CONECTA SC SAÚDE - CSCS

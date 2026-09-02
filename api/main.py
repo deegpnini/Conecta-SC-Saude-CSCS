@@ -64,6 +64,7 @@ async def login(request: dict):
     username = request.get("username")
     password = request.get("password")
     
+        # DEMO ONLY - Não usar em produção
     if username == "admin" and password == "admin123":
         return {"access_token": "fake-token", "token_type": "bearer", "role": "admin"}
     
