@@ -1,3 +1,5 @@
+> ⚠️ **STATUS: MVP/DEMO** - Este é um protótipo funcional para demonstração. Não é uma integração operacional com o SUS. Para uso em produção, são necessárias adaptações de segurança e governança.
+
 # 🏥 CONECTA SC SAÚDE - CSCS
 
 > Sistema de regulação de leitos em saúde mental integrando dados reais do SIH/SUS
@@ -39,7 +41,7 @@ O **CSCS (Conecta Santa Catarina Saúde)** é um sistema de regulação e transp
 git clone https://github.com/deegpnini/Conecta-SC-Saude-CSCS.git
 cd Conecta-SC-Saude-CSCS
 pip install -r requirements.txt
-cp .env.example .env
+cp config/.env.example .env
 ./scripts/iniciar
 ```
 
@@ -47,6 +49,7 @@ cp .env.example .env
 
 | Serviço | URL | Credenciais |
 |---------|-----|-------------|
+> **Credenciais de demonstração:** `admin / admin123` (apenas para teste local)
 | Frontend | http://localhost:8080/login.html | admin / admin123 |
 | API Docs | http://localhost:9090/docs | - |
 | Dashboard | http://localhost:5000 | - |
