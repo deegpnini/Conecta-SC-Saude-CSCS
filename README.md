@@ -1,74 +1,69 @@
-n> ⚠️ **STATUS: MVP/DEMO** - Este é um protótipo funcional para demonstração de conceito. Não é uma integração operacional com o SUS. Para uso em produção, são necessárias adaptações de segurança e governança.
+# Conecta SC Saúde — Protótipo de Regulação de Leitos
 
-> ⚠️ **STATUS: MVP/DEMO** - Este é um protótipo funcional para demonstração. Não é uma integração operacional com o SUS. Para uso em produção, são necessárias adaptações de segurança e governança.
+**Protótipo de painel de regulação de leitos em saúde mental (dados públicos agregados do SIH/SUS).**
 
-# 🏥 CONECTA SC SAÚDE - CSCS
-
-> Sistema de regulação de leitos em saúde mental integrando dados reais do SIH/SUS
-
+> **Status:** MVP / Demonstração. Não é integração com o SUS e não substitui sistemas oficiais de regulação.
 
 ---
 
-## 📌 Sobre o Projeto
+## Sobre o projeto
 
-O **CSCS (Conecta Santa Catarina Saúde)** é um sistema de regulação e transparência para leitos hospitalares em saúde mental, baseado em dados reais do SIH/SUS.
+O Conecta SC Saúde é um protótipo de painel (HTML/JS) que consolida dados públicos de internações psiquiátricas do Sistema de Informações Hospitalares do SUS (SIH/SUS), entre 2024 e 2026.
 
-### Funcionalidades
-
-- ✅ **API REST** com autenticação JWT
-- ✅ **Fila de Regulação** com busca e ordenação
-- ✅ **Painel de Vagas** com 51 unidades cadastradas
-- ✅ **Dashboard** com 24.910 registros de internações
-- ✅ **Novos Encaminhamentos** com formulário completo
-- ✅ **Análise de Dados** com estatísticas descritivas
-
-### Dados Reais
-
-- **24.910 internações** psiquiátricas analisadas
-- **51 unidades** de saúde cadastradas (CAPS + Hospitais)
-- **R$ 22,86 milhões** em gastos mapeados
-- Período: 2024-2026
+O objetivo é apoiar a visualização da distribuição de leitos e a identificação de regiões com maior demanda, servindo como base para futuras discussões sobre regulação.
 
 ---
 
-## 🚀 Como Executar
+## Dados
 
-### Pré-requisitos
-- Python 3.14+
-- Termux ou ambiente Linux
-
-### Instalação
-
-```bash
-git clone https://github.com/deegpnini/Conecta-SC-Saude-CSCS.git
-cd Conecta-SC-Saude-CSCS
-pip install -r requirements.txt
-cp config/.env.example .env
-./scripts/iniciar
-```
-
-### Acessos
-
-| Serviço | URL | Credenciais |
-|---------|-----|-------------|
-> **Credenciais de demonstração:** `admin / admin123` (apenas para teste local)
-| Frontend | http://localhost:8080/login.html | admin / admin123 |
-| API Docs | http://localhost:9090/docs | - |
-| Dashboard | http://localhost:5000 | - |
+- **Fonte:** SIH/SUS (Sistema de Informações Hospitalares do SUS) — dados públicos agregados.
+- **Período:** 2024 a 2026.
+- **Volume:** 24.910 registros de internações psiquiátricas.
+- **Anonimização:** os dados utilizados são apenas agregados públicos. Nenhum dado pessoal identificável (nome, CPF, CNS, endereço) foi incluído ou gerado no repositório.
 
 ---
 
-## 📄 Licença
+## O que o protótipo mostra
 
-MIT License - veja o arquivo [LICENSE](LICENSE)
-
----
-
-## 👤 Autor
-
-**Helyton Renato Gonçalves Ronchi (Hebron)**
-- GitHub: [@deegpnini](https://github.com/deegpnini)
+- Total de internações psiquiátricas no período.
+- Valor total associado às internações (R$ 22,86 milhões).
+- Distribuição por unidade hospitalar (51 unidades).
+- Distribuição por região de saúde.
+- Painel de vagas (simulado com base nas internações históricas).
 
 ---
 
-**"Onde a dúvida vira investigação — e a investigação salva vidas."** 🟣💙
+## Como executar
+
+O protótipo é um único arquivo HTML/JS estático.
+
+1. Abra o arquivo `index.html` no navegador:
+   - Duplo clique no arquivo local, ou
+   - `python3 -m http.server 8000` na pasta do projeto e acesse `http://localhost:8000`.
+2. Os dados estão embutidos no HTML (não há backend).
+
+---
+
+## Tecnologias
+
+- HTML5, CSS3, JavaScript (puro).
+- Dados extraídos e agregados do SIH/SUS via scripts Python (não inclusos neste repositório).
+
+---
+
+## Limitações
+
+- **Protótipo de demonstração.** Não é sistema oficial de regulação.
+- Não integra com sistemas do SUS.
+- Dados agregados de 2024–2026 (não tempo real).
+- Painel de vagas é simulado com base em internações históricas.
+
+---
+
+## Licença
+
+MIT License.
+
+---
+
+**Autor:** Helyton Ronchi ([@deegpnini](https://github.com/deegpnini))
