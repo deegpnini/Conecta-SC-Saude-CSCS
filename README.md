@@ -4,66 +4,42 @@
 
 > **Status:** MVP / Demonstração. Não é integração com o SUS e não substitui sistemas oficiais de regulação.
 
----
-
 ## Sobre o projeto
 
-O Conecta SC Saúde é um protótipo de painel (HTML/JS) que consolida dados públicos de internações psiquiátricas do Sistema de Informações Hospitalares do SUS (SIH/SUS), entre 2024 e 2026.
+O Conecta SC Saúde é um protótipo de sistema de regulação composto por:
+- **Backend:** API REST construída em **FastAPI** e **SQLite**, com autenticação JWT e módulos separados (clínicas, internações, vagas, auditoria/ledger).
+- **Frontend:** 5 telas demonstrativas (HTML/JS) para visualização do fluxo de encaminhamento.
 
-O objetivo é apoiar a visualização da distribuição de leitos e a identificação de regiões com maior demanda, servindo como base para futuras discussões sobre regulação.
-
----
+O objetivo é apoiar a visualização da distribuição de leitos e a identificação de regiões com maior demanda.
 
 ## Dados
 
 - **Fonte:** SIH/SUS (Sistema de Informações Hospitalares do SUS) — dados públicos agregados.
 - **Período:** 2024 a 2026.
-- **Volume:** 24.910 registros de internações psiquiátricas.
-- **Anonimização:** os dados utilizados são apenas agregados públicos. Nenhum dado pessoal identificável (nome, CPF, CNS, endereço) foi incluído ou gerado no repositório.
+- **Anonimização:** os dados utilizados são agregados públicos. Nenhum dado pessoal identificável foi incluído no repositório.
 
----
+## Como executar (Ambiente local)
 
-## O que o protótipo mostra
-
-- Total de internações psiquiátricas no período.
-- Valor total associado às internações (R$ 22,86 milhões).
-- Distribuição por unidade hospitalar (51 unidades).
-- Distribuição por região de saúde.
-- Painel de vagas (simulado com base nas internações históricas).
-
----
-
-## Como executar
-
-O protótipo é um único arquivo HTML/JS estático.
-
-1. Abra o arquivo `index.html` no navegador:
-   - Duplo clique no arquivo local, ou
-   - `python3 -m http.server 8000` na pasta do projeto e acesse `http://localhost:8000`.
-2. Os dados estão embutidos no HTML (não há backend).
-
----
+1. Clone o repositório e instale as dependências:
+   `pip install -r requirements.txt`
+2. Inicie o servidor da API:
+   `python scripts/run_api.py`
+3. A API estará disponível em `http://localhost:9090/api/health`.
+4. Para o frontend de demonstração, sirva a pasta `conecta_demo/` em um servidor HTTP (ex: `python -m http.server 8080`).
 
 ## Tecnologias
 
-- HTML5, CSS3, JavaScript (puro).
-- Dados extraídos e agregados do SIH/SUS via scripts Python (não inclusos neste repositório).
+- Python 3.12+ (FastAPI, Uvicorn, Pandas, SQLite)
+- HTML5, CSS3, JavaScript
 
----
+## Testes
 
-## Limitações
-
-- **Protótipo de demonstração.** Não é sistema oficial de regulação.
-- Não integra com sistemas do SUS.
-- Dados agregados de 2024–2026 (não tempo real).
-- Painel de vagas é simulado com base em internações históricas.
-
----
+O projeto conta com testes de fumaça para validar a API.
+`pytest tests/`
 
 ## Licença
 
 MIT License.
 
 ---
-
 **Autor:** Helyton Ronchi ([@deegpnini](https://github.com/deegpnini))

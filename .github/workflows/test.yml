@@ -1,4 +1,4 @@
-name: Validate API
+name: Run Tests
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-check:
+  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -19,6 +19,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - name: Smoke test (import API)
+    - name: Run tests
       run: |
-        python -c "from api.main import app; print('OK: API importou sem erros. Rotas:', len(app.routes))"
+        pytest tests/ -v
