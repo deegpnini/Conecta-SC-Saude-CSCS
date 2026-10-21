@@ -1,4 +1,4 @@
-name: Validate Build
+name: Validate API
 
 on:
   push:
@@ -15,6 +15,10 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-    - name: Check HTML presence
+    - name: Install dependencies
       run: |
-        test -f index.html && echo 'OK: index.html encontrado.'
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Smoke test (import API)
+      run: |
+        python -c "from api.main import app; print('OK: API importou sem erros. Rotas:', len(app.routes))"
